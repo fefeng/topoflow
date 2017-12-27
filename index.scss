@@ -1,0 +1,99 @@
+$main-color:#069fe9;
+$link-color:#c0beb0;
+$active-color: #fdbe51;
+$text-color:#5b5b5b;
+$success:#069fe9;
+$info:#5bc0de;
+$warning:#eb9b2a;
+$danger:#e50d16;
+$default:#e6e6e6;
+.data-flow-container {
+    .right-menu {
+        ul {
+            background-color: white;
+            border: 1px solid #ccc;
+        }
+        li {
+            padding: 5px;
+            border-bottom: 1px solid #ececec;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+            &:hover {
+                background-color: #e8e8e8;
+            }
+        }
+        position: absolute;
+        display: none;
+        width: 150px;
+    }
+}
+
+svg {
+    cursor: move;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    .node {
+        cursor: pointer;
+        stroke-width: 1px;
+        stroke: #dcd4d4;
+        fill: #069fe9;
+        &.default {
+            &.active {
+                stroke: #52b036;
+            }
+        }
+        &.active {
+            .options-btn {
+                display: inline;
+            }
+            .operating-point {
+                stroke: $link-color;
+            }
+        }
+    }
+    .link {
+        stroke: $link-color;
+        stroke-width: 2px;
+        &.active {
+            stroke: $active-color;
+        }
+        &:hover {
+            stroke-width: 5px;
+        }
+    }
+    #end-arrow-active {
+        stroke: $active-color;
+        fill: $active-color;
+        pointer-events: none;
+    }
+    #end-arrow {
+        stroke: $link-color;
+        fill: $link-color;
+        pointer-events: none;
+    }
+    #start-arrow {
+        stroke: $link-color;
+        fill: $link-color;
+        pointer-events: none;
+    }
+    .dragline {
+        fill: white;
+        stroke: $main-color;
+    }
+    .hide {
+        display: none;
+    }
+    .delete-not-btn {
+        cursor: pointer;
+    }
+    .operating-point {
+        cursor: crosshair;
+    }
+}
