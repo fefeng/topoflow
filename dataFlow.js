@@ -3,8 +3,8 @@ import * as d3 from 'd3';
 import contextmenu from './lib/contextmenu';
 import mathLib from './lib/math';
 import common from './lib/common';
+import './styles/index.css';
 
-import './index.scss';
 export default class Flow {
     // 设置默认值
     constructor(config) {
@@ -20,7 +20,8 @@ export default class Flow {
 
         this.svgID = `svg_${common.genUUID()}`; // svg的ID
         this.rwaElnContainer = document.querySelector(this.config.eln);
-
+        
+        this.rwaElnContainer.classList.add('topoflow-container');
         this.initContextMenu()
 
         // 初始化画布

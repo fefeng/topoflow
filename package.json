@@ -1,14 +1,31 @@
 {
   "name": "topoflow",
-  "version": "1.0.0",
+  "version": "0.9.2",
   "description": " ",
   "main": "index.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-sass": "node-sass --output-style compressed ./styles/index.scss > ./styles/index.css"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "fefeng",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fefeng/topoflow.git"
+  },
+  "keywords": [
+    "topo",
+    "Topology",
+    "flow"
+  ],
+  "bugs": {
+    "url": "https://github.com/fefeng/topoflow/issues"
+  },
+  "homepage": "https://github.com/fefeng/topoflow#readme",
+  "dependencies": {
+    "d3": "^4.12.2"
+  }
 }
