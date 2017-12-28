@@ -20,7 +20,7 @@ export default class Flow {
 
         this.svgID = `svg_${common.genUUID()}`; // svg的ID
         this.rwaElnContainer = document.querySelector(this.config.eln);
-        
+
         this.rwaElnContainer.classList.add('topoflow-container');
         this.initContextMenu()
 
@@ -62,10 +62,10 @@ export default class Flow {
         this.initDefs();
         this.initSvgEvent();
 
-        let nodeTypeList = Object.keys(this.config.template);
+        let nodeTypeList = Object.keys(this.config.nodeTemplate);
         nodeTypeList.map((type) => {
-            let template = this.config.template[type];
-            if (!!template.deleteAble) {
+            let nodeTemplate = this.config.nodeTemplate[type];
+            if (!!nodeTemplate.deleteAble) {
                 this.deleteAbleType.push(type);
             }
         });
@@ -165,7 +165,7 @@ export default class Flow {
 
     zoom() {
         let then = this;
-        
+
         // 画布移动缩放        
         let zoom = d3.zoom().on('zoom', function () {
             d3.selectAll(`${then.config.eln} .data-flow-path-group, ${then.config.eln} .data-flow-node-group`).attr('transform', d3.event.transform);
@@ -291,8 +291,8 @@ export default class Flow {
             }
         }
 
-        if (this.deleteAbleType.indexOf(node.templateType) === -1) {
-            console.log('Not allowed to delete type ' + node.templateType);
+        if (this.deleteAbleType.indexOf(node.type) === -1) {
+            console.log('Not allowed to delete type ' + node.type);
             return false;
         }
 
@@ -333,11 +333,20 @@ export default class Flow {
         if (!!!nodeInfo.id) {
             nodeInfo.id = 'node_' + common.genUUID();
         }
+        
+        if (!this.config.nodeTemplate.hasOwnProperty(nodeInfo.type)){
+            return ;
+        }
+
+        let template = this.config.nodeTemplate[nodeInfo.type];
+        
+        nodeInfo.width = template.width;
+        nodeInfo.height = template.height;
 
         let node = this.nodeGroup
             .append('g')
             .attr('class', 'node')
-            .attr('id', nodeInfo.id)
+            .attr('id', nodeInfo.id)            
             .on('contextmenu', function () {
                 d3.event.preventDefault();
                 then.contextmenu.show(nodeInfo, then.currentMouseXY);
@@ -354,7 +363,7 @@ export default class Flow {
         }
 
         // 调用参数定义的        
-        this.config.template[nodeInfo.templateType].renderNode(node, nodeInfo);
+        this.config.nodeTemplate[nodeInfo.type].renderNode(node, nodeInfo);
 
         // 保存节点信息        
         this.Nodes[nodeInfo.id] = nodeInfo;
@@ -364,13 +373,11 @@ export default class Flow {
 
     onNodeClick(node, nodeInfo) {
         let then = this;
-        let nodeShape = this.config.template[nodeInfo.templateType].shape;
-
         this.sourceNode = nodeInfo;
         this.optionGroup = this.nodeGroup.append('g');
 
         if (!!!this.config.readOnly) {
-            this.config.template[nodeInfo.templateType].operatingPoint.forEach((item) => {
+            this.config.nodeTemplate[nodeInfo.type].operatingPoint.forEach((item) => {
                 then.optionGroup
                     .append('svg:circle')
                     .attr('class', 'operating-point')
@@ -378,52 +385,42 @@ export default class Flow {
                     .attr('fill', 'white')
                     .attr('stroke', '#06a0e9')
                     .attr('transform', () => {
-                        if (nodeShape === 'circle') {
-                            if (item === 'right') {
-                                return `translate(${nodeInfo.width + nodeInfo.x},${nodeInfo.y})`;
-                            } else if (item === 'left') {
-                                return `translate(${(nodeInfo.x - nodeInfo.width)},${nodeInfo.y})`;
-                            }
-                        } else if (nodeShape === 'rect') {
-                            if (item === 'right') {
-                                return `translate(${nodeInfo.x + nodeInfo.width}, ${nodeInfo.y + nodeInfo.height / 2})`;
-                            } else if (item === 'left') {
-                                return `translate(${nodeInfo.x}, ${nodeInfo.y + nodeInfo.height / 2})`;
-                            }
+                        if (item === 'right') {
+                            return `translate(${nodeInfo.x + nodeInfo.width}, ${nodeInfo.y + nodeInfo.height / 2})`;
+                        } else if (item === 'left') {
+                            return `translate(${nodeInfo.x}, ${nodeInfo.y + nodeInfo.height / 2})`;
                         }
                     }).call(then.DragLinkEvent);
             });
 
             // 删除按钮
-            if (nodeShape === 'rect') {
-                let del_btn = this.optionGroup
-                    .append('g')
-                    .attr('class', 'delete-not-btn')
-                    .attr('transform', `translate(${nodeInfo.width + nodeInfo.x}, ${nodeInfo.y}) `);
+            let del_btn = this.optionGroup
+                .append('g')
+                .attr('class', 'delete-not-btn')
+                .attr('transform', `translate(${nodeInfo.width + nodeInfo.x}, ${nodeInfo.y}) `);
 
-                del_btn
-                    .append('svg:circle')
-                    .attr('stroke', 'red')
-                    .attr('fill', 'red')
-                    .attr('r', 6);
+            del_btn
+                .append('svg:circle')
+                .attr('stroke', 'red')
+                .attr('fill', 'red')
+                .attr('r', 6);
 
-                del_btn
-                    .append('svg:path')
-                    .attr('stroke', 'white')
-                    .attr('stroke-width', 2)
-                    .attr('d', 'M-3,-3L3,3');
+            del_btn
+                .append('svg:path')
+                .attr('stroke', 'white')
+                .attr('stroke-width', 2)
+                .attr('d', 'M-3,-3L3,3');
 
-                del_btn
-                    .append('svg:path')
-                    .attr('stroke', 'white')
-                    .attr('stroke-width', 2)
-                    .attr('d', 'M3,-3L-3,3');
+            del_btn
+                .append('svg:path')
+                .attr('stroke', 'white')
+                .attr('stroke-width', 2)
+                .attr('d', 'M3,-3L-3,3');
 
-                del_btn.on('click', function () {
-                    console.log('delete node', nodeInfo);
-                    then.deleteNode(nodeInfo.id);
-                });
-            }
+            del_btn.on('click', function () {
+                console.log('delete node', nodeInfo);
+                then.deleteNode(nodeInfo.id);
+            });
         }
     }
 
