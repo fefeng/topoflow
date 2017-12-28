@@ -36,19 +36,28 @@ topoflow是一个基于[d3](https://d3js.org/)的一个拓扑图插件,提供了
 
 #### 使用例子
 
-![](./images/s1)
+![](./images/s1.png)
 
 
 
-![](./images/s2)
+![](./images/s2.png)
 
 #### 使用说明
+
+亲测,适用于`react`和`vue`
+
+- react项目中初始化过程应该在`componentDidMount` 生命周期内完成
+
+- vue项目中的初始化过程应该在`mounted`的生命周期内完成
+
+  ​
+
+
+- 安装依赖
 
 ```bash
 npm i topoflow --save-dev
 ```
-
-
 
 - html
 
@@ -56,47 +65,50 @@ npm i topoflow --save-dev
 <div id="topoflow"></div>
 ```
 
-- js
+- 初始化
 
 ```js
+import TopoFlow from 'topoflow';
+
+let data = {
+    nodes: [{
+        id: 'router1',
+        type: 'router',
+        templateType: 'router',
+        shape: 'rect',
+        x: 300,
+        y: 150,
+        height: 50,
+        width: 90,
+        config: {
+            type: 'router',
+            name: 'router11',
+        }
+    }, {
+        id: 'switch2',
+        type: 'switch',
+        templateType: 'switch',
+        shape: 'rect',
+        x: 300,
+        y: 300,
+        height: 50,
+        width: 140,
+        config: {
+            type: 'switch',
+            name: 'router2',
+        }
+    }],
+    links: [{
+        from: 'router1',
+        to: 'switch2'
+    }]
+};
+
 let config = {
     eln: '#topoflow',        // 画布节点的ID
     width: '100%',
     height: '700px',
-    data: {
-        nodes: [{
-            id: 'router1',
-            type: 'router',
-            templateType: 'router',
-            shape: 'rect',
-            x: 300,
-            y: 150,
-            height: 50,
-            width: 90,
-            config: {
-                type: 'router',
-                name: 'router11',
-            }
-        }, {
-            id: 'switch2',
-            type: 'switch',
-            templateType: 'switch',
-            shape: 'rect',
-            x: 300,
-            y: 300,
-            height: 50,
-            width: 140,
-            config: {
-                type: 'switch',
-                name: 'router2',
-            }
-        }],
-        links: [{
-            from: 'router1',
-            to: 'switch2'
-        }],
-    },    
-
+    data: data,
     // 节点模板
     template: {
         // router 类型的模板
@@ -147,5 +159,28 @@ let config = {
     },
 };
 
-this.dataFlow = new DataFlow(config);
+let topoflow = new TopoFlow(config);
 ```
+
+
+- 方法说明
+
+```js
+// 更新图形
+topoflow.setData(newData);
+
+// 选中某个节点
+topoflow.selectNode(nodeID);
+
+// 新增线条
+topoflow.addLink(linkInfo);
+
+// 新增节点
+topoflow.addNode(nodeInfo);
+
+// 获取当前的节点
+topoflow.getNodes();
+// 获取当前的线
+topoflow.getLinks();
+```
+
