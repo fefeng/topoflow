@@ -1,4 +1,4 @@
-import Flow from './dataFlow';
+import Flow from './topoflow';
 import common from './lib/common';;
 // 封装外暴露的方法
 class Index {
@@ -26,7 +26,7 @@ class Index {
         let nodes = [];
         let links = [];
         this.flow.reset();
-
+        
         try {
             nodes = this.config.data.nodes;
             links = this.config.data.links;

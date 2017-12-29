@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import contextmenu from './lib/contextmenu';
 import mathLib from './lib/math';
 import common from './lib/common';
+
 import './styles/index.css';
 
 export default class Flow {
@@ -15,10 +16,10 @@ export default class Flow {
         this.sourceNode = {}; //  源节点信息               
         this.selectedElement = null; //当前选中节点的ID
         this.optionGroup = null;  // 操作按钮元素
-        this.deleteAbleType = [];    //  允许删除的元素
+        this.deleteAbleType = [];    // 允许删除的元素
         this.currentMouseXY = {};
 
-        this.svgID = `svg_${common.genUUID()}`; // svg的ID
+
         this.rwaElnContainer = document.querySelector(this.config.eln);
 
         this.rwaElnContainer.classList.add('topoflow-container');
@@ -30,7 +31,7 @@ export default class Flow {
             .style('outline', 'none')
             .attr('tabIndex', '0')
             .append('svg')
-            .attr('id', this.svgID)
+            .attr('id', `svg_${common.genUUID()}`)
             .attr('width', '100%')
             .attr('height', this.config.height);
 
@@ -38,6 +39,21 @@ export default class Flow {
         this.pathGroup = this.svg.append('svg:g').attr('class', 'data-flow-path-group');
         this.nodeGroup = this.svg.append('svg:g').attr('class', 'data-flow-node-group');
     }
+
+    // 组件初始化方法调用
+    init() {
+        this.initDefs();
+        this.initSvgEvent();
+
+        let nodeTypeList = Object.keys(this.config.nodeTemplate);
+        nodeTypeList.map((type) => {
+            let nodeTemplate = this.config.nodeTemplate[type];
+            if (!!nodeTemplate.deleteAble) {
+                this.deleteAbleType.push(type);
+            }
+        });
+    }
+
 
     initContextMenu() {
         // 初始化右键菜单
@@ -57,61 +73,34 @@ export default class Flow {
         this.config.onDataChange();
     }
 
-    // 组件初始化方法调用
-    init() {
-        this.initDefs();
-        this.initSvgEvent();
-
-        let nodeTypeList = Object.keys(this.config.nodeTemplate);
-        nodeTypeList.map((type) => {
-            let nodeTemplate = this.config.nodeTemplate[type];
-            if (!!nodeTemplate.deleteAble) {
-                this.deleteAbleType.push(type);
-            }
-        });
-    }
-
     // 初始化定义元素，如箭头
     initDefs() {
-        let defs = this.svg.append('svg:defs');
+        let defs = this.svg.append('svg:defs').attr('id', 'arrow-defs');
 
-        defs.attr('id', 'arrow-defs')
-            .append('svg:marker')
-            .attr('id', 'start-arrow')
-            .attr('viewBox', '0 -5 10 10')
-            .attr('refX', -5)
-            .attr('refY', 2)
-            .attr('markerWidth', 10)
-            .attr('markerHeight', 10)
-            .attr('orient', 'auto')
-            .append('svg:circle')
-            .style('stroke-width', '1px')
-            .attr('cx', 3)
-            .attr('cy', 2)
-            .attr('r', 1);
-
-        defs.attr('id', 'arrow-defs')
-            .append('svg:marker')
-            .attr('id', 'end-arrow')
-            .attr('viewBox', '0 -5 10 10')
-            .attr('refX', 10)
-            .attr('refY', 2)
-            .attr('markerWidth', 10)
-            .attr('markerHeight', 10)
-            .attr('orient', 'auto')
-            .append('svg:circle')
-            .style('stroke-width', '1px')
-            .attr('cx', 3)
-            .attr('cy', 2)
-            .attr('r', 1);
-
-        this.dragLine = this.pathGroup
-            .append('svg:path')
-            .attr('id', 'drag-line')
-            .style('fill', 'white')
-            .style('marker-end', 'url(#end-arrow)')
-            .attr('class', 'dragline hide')
-            .attr('d', 'M0,0L0,0');
+        // 自定义的
+        if (this.config.hasOwnProperty('linkTemplate') && this.config.linkTemplate.hasOwnProperty('defs')) {
+            this.config.linkTemplate.defs(defs);
+        } else {
+            defs.append('svg:marker')
+                .attr('id', 'end-arrow')
+                .attr('viewBox', '0 -5 10 10')
+                .attr('refX', 6)
+                .attr('markerWidth', 5)
+                .attr('markerHeight', 5)
+                .attr('orient', 'auto')
+                .append('svg:path')
+                .attr('d', 'M0,-5L10,0L0,5');
+        }
+        
+        this.dragLine = this.pathGroup.append('svg:path');
+        if (this.config.hasOwnProperty('linkTemplate') && this.config.linkTemplate.hasOwnProperty('dragLink')) {
+            this.config.linkTemplate.dragLink(this.dragLine)
+        } else {
+            this.dragLine.style('fill', 'white')
+                .style('marker-end', 'url(#end-arrow)')
+                .attr('class', 'dragline hide')
+                .attr('d', 'M0,0L0,0');
+        }
     }
 
     // 重置，将会删掉所有的线条和节点
@@ -185,7 +174,6 @@ export default class Flow {
         this.zoom();
 
         if (!!!this.config.readOnly) {
-
             this.svg.on('mousemove', function () {
                 let xy = d3.mouse(this);
                 then.currentMouseXY = {
@@ -228,54 +216,62 @@ export default class Flow {
                     then.onDataChange();
                 });
 
-
-            // 节点拖拽事件
-            let nodeMouseXY = [];
-            this.dragEvent = d3.drag()
-                .on('start', function () {
-                    nodeMouseXY = d3.mouse(this);
-                    if (!!then.optionGroup) {
-                        then.optionGroup.remove();
-                    }
-                })
-                .on('drag', function (d) {
-                    let point = {
-                        x: d3.event.x - nodeMouseXY[0],
-                        y: d3.event.y - nodeMouseXY[1]
-                    };
-
-                    d3.select(this).attr('transform', `translate(${point.x},${point.y})`);
-
-                    // 移动节点,线条跟着变化
-                    let nodeID = this.id;
-
-                    then.Nodes[nodeID].x = point.x;
-                    then.Nodes[nodeID].y = point.y;
-
-                    let linksID = Object.keys(then.Links);
-                    linksID.map(linkID => {
-                        let link = then.Links[linkID];
-                        if (nodeID === link.from || nodeID === link.to) {
-                            then.moveLink(link, linkID);
-                        }
-                    });
-                })
-                .on('end', function () {
-                    then.onDataChange();
-                });
-
-            // 删除节点和线条的快捷键
-            document.querySelector(this.config.eln).addEventListener('keydown', function (e) {
-                if (!!then.selectedElement && (e.keyCode === 8 || e.keyCode === 46)) {
-                    if (then.selectedElement.type === 'node') {
-                        then.deleteNode(then.selectedElement.id);
-                    } else {
-                        let link = then.Links[then.selectedElement.id];
-                        then.deleteLink(link);
-                    }
-                }
-            });
+            this.nodaDrag();
+            this.hotKey();
         }
+    }
+
+    // 节点拖拽事件
+    nodaDrag() {
+        let nodeMouseXY = [];
+        let then = this;
+        this.dragEvent = d3.drag()
+            .on('start', function () {
+                nodeMouseXY = d3.mouse(this);
+                if (!!then.optionGroup) {
+                    then.optionGroup.remove();
+                }
+            })
+            .on('drag', function (d) {
+                let point = {
+                    x: d3.event.x - nodeMouseXY[0],
+                    y: d3.event.y - nodeMouseXY[1]
+                };
+
+                d3.select(this).attr('transform', `translate(${point.x},${point.y})`);
+
+                // 移动节点,线条跟着变化
+                let nodeID = this.id;
+
+                then.Nodes[nodeID].x = point.x;
+                then.Nodes[nodeID].y = point.y;
+
+                let linksID = Object.keys(then.Links);
+                linksID.map(linkID => {
+                    let link = then.Links[linkID];
+                    if (nodeID === link.from || nodeID === link.to) {
+                        then.moveLink(link, linkID);
+                    }
+                });
+            })
+            .on('end', function () {
+                then.onDataChange();
+            });
+    }
+
+    // 删除节点和线条的快捷键
+    hotKey() {
+        let then = this;
+        document.querySelector(this.config.eln).addEventListener('keydown', function (e) {
+            if (!!then.selectedElement && (e.keyCode === 8 || e.keyCode === 46)) {
+                if (then.selectedElement.type === 'node') {
+                    then.deleteNode(then.selectedElement.id);
+                } else {
+                    let link = then.Links[then.selectedElement.id];
+                    then.deleteLink(link);
+                }
+            }
+        });
     }
 
     // 删除节点
@@ -316,14 +312,17 @@ export default class Flow {
 
     // 选中节点
     selectNode(nodeID) {
-        this.clearAllActiveElement();
         let nodeInfo = this.Nodes[nodeID];
         nodeInfo.selected = true;
-        d3.select(`#${nodeID}`).classed('active', true);
+
+        let node = d3.select(`#${nodeID}`);
+        node.classed('active', true)
+
         this.selectedElement = {
             type: 'node',
             id: nodeID
         };
+        this.onNodeClick(node, nodeInfo)
     }
 
     // 新增一个节点
@@ -333,20 +332,20 @@ export default class Flow {
         if (!!!nodeInfo.id) {
             nodeInfo.id = 'node_' + common.genUUID();
         }
-        
-        if (!this.config.nodeTemplate.hasOwnProperty(nodeInfo.type)){
-            return ;
+
+        if (!this.config.nodeTemplate.hasOwnProperty(nodeInfo.type)) {
+            return;
         }
 
         let template = this.config.nodeTemplate[nodeInfo.type];
-        
+
         nodeInfo.width = template.width;
         nodeInfo.height = template.height;
 
         let node = this.nodeGroup
             .append('g')
             .attr('class', 'node')
-            .attr('id', nodeInfo.id)            
+            .attr('id', nodeInfo.id)
             .on('contextmenu', function () {
                 d3.event.preventDefault();
                 then.contextmenu.show(nodeInfo, then.currentMouseXY);
@@ -357,6 +356,7 @@ export default class Flow {
                 then.config.onSelectNode(this, nodeInfo);
             })
             .attr('transform', `translate(${nodeInfo.x}, ${nodeInfo.y})`);
+
 
         if (!!this.dragEvent) {
             node.call(this.dragEvent);
@@ -374,9 +374,21 @@ export default class Flow {
     onNodeClick(node, nodeInfo) {
         let then = this;
         this.sourceNode = nodeInfo;
-        this.optionGroup = this.nodeGroup.append('g');
 
+        if (!!this.optionGroup) {
+            this.optionGroup.remove();
+        }
+
+        this.optionGroup = this.nodeGroup.append('g');
         if (!!!this.config.readOnly) {
+            this.optionGroup.append('rect')
+                .style('fill', 'none')
+                .style('stroke', '#68a987')
+                .style('stroke-width', '1px')
+                .attr('width', nodeInfo.width)
+                .attr('height', nodeInfo.height)
+                .attr('transform', `translate(${nodeInfo.x}, ${nodeInfo.y}) `);
+
             this.config.nodeTemplate[nodeInfo.type].operatingPoint.forEach((item) => {
                 then.optionGroup
                     .append('svg:circle')
@@ -392,6 +404,7 @@ export default class Flow {
                         }
                     }).call(then.DragLinkEvent);
             });
+
 
             // 删除按钮
             let del_btn = this.optionGroup
@@ -444,7 +457,6 @@ export default class Flow {
 
         path
             .attr('id', gid)
-            .style('marker-start', 'url(#start-arrow)')
             .style('marker-end', 'url(#end-arrow)')
             .attr('class', 'link')
             .attr('d', `M${points[0]}, ${points[1]}L${points[2]}, ${points[3]}`)
