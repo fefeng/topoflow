@@ -1,0 +1,80 @@
+.topoflow-container svg {
+    cursor: move;
+    user-select: none
+}
+
+.topoflow-container svg .node {
+    cursor: pointer;
+    stroke-width: 1px
+}
+
+.topoflow-container svg .link {
+    stroke: #c0beb0;
+    stroke-width: 2px
+}
+
+.topoflow-container svg .link.active {
+    stroke: #fdbe51
+}
+
+.topoflow-container svg .link:hover {
+    stroke-width: 5px
+}
+
+.topoflow-container svg #end-arrow {
+    stroke: #c0beb0;
+    fill: #c0beb0;
+    pointer-events: none
+}
+
+.topoflow-container svg #start-arrow {
+    stroke: #c0beb0;
+    fill: #c0beb0;
+    pointer-events: none
+}
+
+.topoflow-container svg .dragline {
+    fill: white;
+    stroke: #069fe9
+}
+
+.topoflow-container svg .hide {
+    display: none
+}
+
+.topoflow-container svg .delete-not-btn {
+    cursor: pointer
+}
+
+.topoflow-container svg .operating-point {
+    cursor: crosshair
+}
+
+.topoflow-container .right-menu {
+    position: absolute;
+    display: none;
+    width: 150px
+}
+
+.topoflow-container .right-menu ul {
+    background-color: white;
+    border: 1px solid #ccc
+}
+
+.topoflow-container .right-menu li {
+    padding-left: 0;
+    padding: 5px;
+    font-size: 13px;
+    list-style: none;
+    border-bottom: 1px solid #ececec;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none
+}
+
+.topoflow-container .right-menu li:hover {
+    background-color: #e8e8e8
+}

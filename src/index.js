@@ -1,103 +1,163 @@
-import Flow from './topoflow';
-import common from './lib/common';;
-// 封装外暴露的方法
+import TopoFlow from './topoflow/index.js';
+import './index.scss'
 class Index {
-    constructor(config) {
-        let obj = {};
-        Object.assign(obj, config);
-
-        this.config = obj;
-
-        obj.onDataChange = this.onDataChange.bind(this);
-
-        this.flow = new Flow(obj);
-        this.flow.init();
-        this.drawFlow(this.config.data);
-    }
-
-    // 设置数据
-    setData(data) {
-        this.config.data = data;
-        this.drawFlow(data);
-    }
-
-    // 渲染图形
-    drawFlow() {
-        let nodes = [];
-        let links = [];
-        this.flow.reset();
-        
-        try {
-            nodes = this.config.data.nodes;
-            links = this.config.data.links;
-        } catch (e) {
-            return false;
+    constructor() {
+        this.data = {                      // 默认图形数据
+            nodes: [{
+                id: 'router1',
+                type: 'router',
+                x: 300,
+                y: 150,
+                config: {}
+            }, {
+                id: 'switch2',
+                type: 'switch',
+                x: 300,
+                y: 300,
+                config: {}
+            }, {
+                id: 'vdi1',
+                type: 'vdi',
+                x: 200,
+                y: 450,
+                config: {}
+            }, {
+                id: 'server1',
+                type: 'server',
+                x: 500,
+                y: 450,
+                config: {}
+            }],
+            links: [{
+                from: 'router1',
+                to: 'switch2'
+            }, {
+                from: 'vdi1',
+                to: 'switch2'
+            }, {
+                from: 'server1',
+                to: 'switch2'
+            }]
         }
+    }
 
-        if (!!nodes && nodes.length > 0) {
-            nodes.forEach((node) => {
-                this.flow.addNode(node);
-                if (node.selected) {
-                    this.selectNode(node.id);
+    initTopoFlow() {
+        let config = {
+            eln: '#topoflow1',
+            data: this.data,
+            height: `700px`,
+            // 模板
+            nodeTemplate: {
+                router: {
+                    width: 90,
+                    height: 50,
+                    deleteAble: true,
+                    operatingPoint: ['left', 'right'],
+                    renderNode: (node, nodeInfo) => {
+                        node.append('svg:rect')
+                            .style('fill', 'white')
+                            .style('stroke', '#27af7d')
+                            .attr('height', nodeInfo.height)
+                            .attr('width', nodeInfo.width)
+                        node.append('text')
+                            .attr('x', 10)
+                            .attr('y', 40)
+                            .html(nodeInfo.id)
+                    }
+                },
+                switch: {
+                    width: 140,
+                    height: 50,
+                    deleteAble: true,
+                    operatingPoint: [
+                        'left', 'right'
+                    ],
+                    renderNode: (node, nodeInfo) => {
+                        node.append('svg:rect')
+                            .style('fill', 'white')
+                            .style('stroke', '#27af7d')
+                            .attr('height', nodeInfo.height)
+                            .attr('width', nodeInfo.width)
+
+                        node.append('text')
+                            .attr('x', 10)
+                            .attr('y', 40)
+                            .html(nodeInfo.id)
+                    }
+                },
+                server: {
+                    width: 50,
+                    height: 100,
+                    deleteAble: true,
+                    operatingPoint: [
+                        'left', 'right'
+                    ],
+                    renderNode: (node, nodeInfo) => {
+                        node.append('svg:rect')
+                            .style('fill', 'white')
+                            .style('stroke', '#27af7d')
+                            .attr('height', nodeInfo.height)
+                            .attr('width', nodeInfo.width)
+
+                        node.append('text')
+                            .attr('x', 10)
+                            .attr('y', 40)
+                            .html(nodeInfo.id)
+                    }
+                },
+                vdi: {
+                    width: 50,
+                    height: 50,
+                    deleteAble: true,
+                    operatingPoint: ['left', 'right'],
+                    renderNode: (node, nodeInfo) => {
+                        node.append('svg:rect')
+                            .style('fill', 'white')
+                            .style('stroke', '#27af7d')
+                            .attr('height', nodeInfo.height)
+                            .attr('width', nodeInfo.width)
+
+                        node.append('text')
+                            .attr('x', 10)
+                            .attr('y', 40)
+                            .html(nodeInfo.id)
+                    }
                 }
-            });
-        }
-
-        // 渲染链接
-        if (!!links && links.length > 0) {
-            links.forEach((link) => {
-                this.flow.addLink(this.flow.Nodes[link.from], this.flow.Nodes[link.to]);
-            });
-        }
+            },
+            onSelectNode: (eln, node) => {
+                console.log('onSelectNode', eln, node);
+            },
+            onClearActiveElement: () => {
+            },
+            onNodeContextMenuRender: (nodeInfo) => {
+                if ('router' === nodeInfo.type) {
+                    return [
+                        { label: '配置', action: 'r_setup' },
+                        { label: '详情', action: 'r_detail' },
+                    ];
+                } else if ('switch' === nodeInfo.type) {
+                    return [
+                        { label: '配置', action: 's_setup' },
+                        { label: '详情', action: 's_detail' },
+                    ];
+                } else if ('host' === nodeInfo.type) {
+                    return [
+                        { label: '配置', action: 'h_setup' },
+                        { label: '详情', action: 'h_detail' },
+                    ];
+                }
+                return null;
+            },
+            contextmenuClick: (node, action) => {
+                console.log('menu click', node, action);
+            },
+            onChange: data => {
+                console.log('data change', data);
+            },
+        };
+        this.topoFlow = new TopoFlow(config);
     }
+};
 
-    // 选中一个节点
-    selectNode(nodeID) {
-        this.flow.selectNode(nodeID);
-    }
-
-    // 新增节点
-    addNode(nodeInfo) {
-        this.flow.addNode(nodeInfo);
-    }
-
-    // 新增线条
-    addLink(sourceNode, targetNode) {
-        this.flow.addLink(sourceNode, targetNode);
-    }
-
-    getNodes() {
-        let nodes = this.flow.Nodes;
-        let nodesID = Object.keys(nodes);
-        return nodesID.map((id) => {
-            nodes[id].x = Math.floor(nodes[id].x);
-            nodes[id].y = Math.floor(nodes[id].y);
-            return nodes[id];
-        });
-    }
-
-    onDataChange() {
-        let nodes = this.getNodes();
-        let links = this.getLinks();
-
-        if (!!this.config.onChange) {
-            this.config.onChange({
-                nodes,
-                links
-            });
-        }
-    }
-
-    getLinks() {
-        let links = this.flow.Links;
-        let linksID = Object.keys(links);
-        return linksID.map((id) => {
-            return links[id];
-        });
-    }
-
-    genUUID() {
-        return common.genUUID();
-    }
-}
-export default Index;
+let index = new Index();
+index.initTopoFlow();

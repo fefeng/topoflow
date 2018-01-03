@@ -15,10 +15,6 @@ function resolve(dir) {
 
 module.exports = {
 
-    entry: {
-        main: './src/main.js', // 程序入口        
-    },
-
     devtool: 'cheap-module-eval-source-map',
 
     output: {
@@ -29,11 +25,7 @@ module.exports = {
     },
 
     resolve: {
-        extensions: ['.js', '.vue', '.json'],
-        alias: {
-            'vue$': 'vue/dist/vue.esm.js',
-            '@': resolve('src')
-        }
+        extensions: ['.js', '.vue', '.json'],        
     },
 
     module: {
@@ -66,10 +58,10 @@ module.exports = {
 
     plugins: [
         extractSass,
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor',
-            filename: 'static/js/[name].[hash].[id].js'
-        }),
+        // new webpack.optimize.CommonsChunkPlugin({
+        //     name: 'vendor',
+        //     filename: 'static/js/[name].[hash].[id].js'
+        // }),
         new webpack.NoEmitOnErrorsPlugin(), //  允许中断不终止程序
         new webpack.HotModuleReplacementPlugin(), //  代码热替换
         new HtmlWebpackPlugin({ //  将webpack生成的文件在html中引用
