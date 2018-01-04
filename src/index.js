@@ -1,5 +1,6 @@
 import TopoFlow from './topoflow/index.js';
 import './index.scss'
+import math from './topoflow/lib/math';
 class Index {
     constructor() {
         this.data = {                      // 默认图形数据
@@ -8,34 +9,34 @@ class Index {
                 type: 'router',
                 x: 300,
                 y: 150,
-                config: {}
+                config: { name: "router1" }
             }, {
                 id: 'switch2',
                 type: 'switch',
                 x: 300,
                 y: 300,
-                config: {}
-            }, {
-                id: 'vdi1',
-                type: 'vdi',
-                x: 200,
-                y: 450,
-                config: {}
+                config: { name: "switch2" }
             }, {
                 id: 'server1',
                 type: 'server',
                 x: 500,
                 y: 450,
-                config: {}
+                config: { name: "server1" }
+            }, {
+                id: 'server2',
+                type: 'server',
+                x: 200,
+                y: 450,
+                config: { name: "server2" }
             }],
             links: [{
                 from: 'router1',
                 to: 'switch2'
             }, {
-                from: 'vdi1',
+                from: 'server1',
                 to: 'switch2'
             }, {
-                from: 'server1',
+                from: 'server2',
                 to: 'switch2'
             }]
         }
@@ -62,7 +63,7 @@ class Index {
                         node.append('text')
                             .attr('x', 10)
                             .attr('y', 40)
-                            .html(nodeInfo.id)
+                            .html(nodeInfo.config.name);
                     }
                 },
                 switch: {
@@ -82,7 +83,7 @@ class Index {
                         node.append('text')
                             .attr('x', 10)
                             .attr('y', 40)
-                            .html(nodeInfo.id)
+                            .html(nodeInfo.config.name);
                     }
                 },
                 server: {
@@ -102,25 +103,7 @@ class Index {
                         node.append('text')
                             .attr('x', 10)
                             .attr('y', 40)
-                            .html(nodeInfo.id)
-                    }
-                },
-                vdi: {
-                    width: 50,
-                    height: 50,
-                    deleteAble: true,
-                    operatingPoint: ['left', 'right'],
-                    renderNode: (node, nodeInfo) => {
-                        node.append('svg:rect')
-                            .style('fill', 'white')
-                            .style('stroke', '#27af7d')
-                            .attr('height', nodeInfo.height)
-                            .attr('width', nodeInfo.width)
-
-                        node.append('text')
-                            .attr('x', 10)
-                            .attr('y', 40)
-                            .html(nodeInfo.id)
+                            .html(nodeInfo.config.name);
                     }
                 }
             },
@@ -128,27 +111,15 @@ class Index {
                 console.log('onSelectNode', eln, node);
             },
             onClearActiveElement: () => {
+                console.log('清空所有选中状态');
             },
             onNodeContextMenuRender: (nodeInfo) => {
-                if ('router' === nodeInfo.type) {
-                    return [
-                        { label: '配置', action: 'r_setup' },
-                        { label: '详情', action: 'r_detail' },
-                    ];
-                } else if ('switch' === nodeInfo.type) {
-                    return [
-                        { label: '配置', action: 's_setup' },
-                        { label: '详情', action: 's_detail' },
-                    ];
-                } else if ('host' === nodeInfo.type) {
-                    return [
-                        { label: '配置', action: 'h_setup' },
-                        { label: '详情', action: 'h_detail' },
-                    ];
-                }
-                return null;
+
+                return [{ label: '配置', action: 'h_setup' },
+                { label: '详情', action: 'h_detail' }];
             },
             contextmenuClick: (node, action) => {
+                alert(`触发了节点[${node.config.name}]的[${action.label}]菜单`)
                 console.log('menu click', node, action);
             },
             onChange: data => {
@@ -157,7 +128,40 @@ class Index {
         };
         this.topoFlow = new TopoFlow(config);
     }
+    initDemoEvent() {
+        // 创建节点
+        document.querySelector('#addNode').addEventListener('click', () => {
+            let nodeType = document.querySelector('#node-type').value;
+            let name = document.querySelector('#node-name').value || `${nodeType}_${Math.floor(Math.random() * 1000)}`;
+            this.topoFlow.addNode({
+                type: nodeType,
+                x: 100,
+                y: 100,
+                config: { name }
+            });            
+        });
+
+        // 创建节点
+        document.querySelector('#btn2').addEventListener('click', () => {
+
+            let node1 = this.topoFlow.addNode({
+                type: 'router',
+                x: 100,
+                y: 100,
+                config: { name: 'node1' }
+            });
+
+            let node2 = this.topoFlow.addNode({
+                type: 'router',
+                x: 400,
+                y: 100,
+                config: { name: 'node2' }
+            });
+            this.topoFlow.addLink(node1, node2)
+        });
+    }
 };
 
 let index = new Index();
 index.initTopoFlow();
+index.initDemoEvent();

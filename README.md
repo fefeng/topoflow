@@ -35,6 +35,7 @@ topoflow是一个基于[d3](https://d3js.org/)的一个拓扑图插件,提供了
 
 
 #### 使用例子
+[在线demo](https://fefeng.github.io/)
 
 ![](./images/s1.png)
 
@@ -70,117 +71,184 @@ npm i topoflow --save-dev
 ```js
 import TopoFlow from 'topoflow';
 
-let data = {
+let data = {                      // 默认图形数据
     nodes: [{
         id: 'router1',
         type: 'router',
-        templateType: 'router',
-        shape: 'rect',
         x: 300,
         y: 150,
-        height: 50,
-        width: 90,
-        config: {
-            type: 'router',
-            name: 'router11',
-        }
+        config: { name: "router1" }
     }, {
         id: 'switch2',
         type: 'switch',
-        templateType: 'switch',
-        shape: 'rect',
         x: 300,
         y: 300,
-        height: 50,
-        width: 140,
-        config: {
-            type: 'switch',
-            name: 'router2',
-        }
+        config: { name: "switch2" }
+    }, {
+        id: 'server1',
+        type: 'server',
+        x: 500,
+        y: 450,
+        config: { name: "server1" }
+    }, {
+        id: 'server2',
+        type: 'server',
+        x: 200,
+        y: 450,
+        config: { name: "server2" }
     }],
     links: [{
         from: 'router1',
         to: 'switch2'
+    }, {
+        from: 'server1',
+        to: 'switch2'
+    }, {
+        from: 'server2',
+        to: 'switch2'
     }]
 };
 
-let config = {
-    eln: '#topoflow',        // 画布节点的ID
-    width: '100%',
-    height: '700px',
-    data: data,
-    // 节点模板
-    template: {
-        // router 类型的模板
+let config = {        
+    eln: '#topoflow1',
+    data: this.data,
+    height: '700px',    
+    nodeTemplate: {
+        // 对应的nodes信息数据结构中的type字段
         router: {
-            shape: 'rect',
-            deleteAble: true,                       // 是否可删除
-            operatingPoint: ['left', 'right'],      // 连线操作的点出现位置 
-            node: (node, nodeInfo) => {             // 节点渲染的方法, node为d3的对象,nodeInfo 为节点的数据配置
-                node.append('svg:image')
-                    .attr('href', 'static/images/ovn/router.png')
+            width: 90,
+            height: 50,
+            deleteAble: true,
+            // 操作点的位置
+            operatingPoint: ['left', 'right'],
+            renderNode: (node, nodeInfo) => {
+                // node 为d3的的svg dom实例。具体使用方式请参考d3文档
+                // nodeInfo 为节点的实际配置信息
+                node.append('svg:rect')
+                    .style('fill', 'white')
+                    .style('stroke', '#27af7d')
                     .attr('height', nodeInfo.height)
                     .attr('width', nodeInfo.width)
+                node.append('text')
+                    .attr('x', 10)
+                    .attr('y', 40)
+                    .html(nodeInfo.config.name);
             }
         },
         switch: {
-            shape: 'rect',
+            width: 140,
+            height: 50,
             deleteAble: true,
-            operatingPoint: ['left', 'right'],
-            node: (node, nodeInfo) => {
-                node.append('svg:image')
-                    .attr('href', 'static/images/ovn/switch.png')
+            operatingPoint: [
+                'left', 'right'
+            ],
+            renderNode: (node, nodeInfo) => {
+                node.append('svg:rect')
+                    .style('fill', 'white')
+                    .style('stroke', '#27af7d')
                     .attr('height', nodeInfo.height)
                     .attr('width', nodeInfo.width)
+
+                node.append('text')
+                    .attr('x', 10)
+                    .attr('y', 40)
+                    .html(nodeInfo.config.name);
+            }
+        },
+        server: {
+            width: 50,
+            height: 100,
+            deleteAble: true,
+            operatingPoint: [
+                'left', 'right'
+            ],
+            renderNode: (node, nodeInfo) => {
+                node.append('svg:rect')
+                    .style('fill', 'white')
+                    .style('stroke', '#27af7d')
+                    .attr('height', nodeInfo.height)
+                    .attr('width', nodeInfo.width)
+
+                node.append('text')
+                    .attr('x', 10)
+                    .attr('y', 40)
+                    .html(nodeInfo.config.name);
             }
         }
     },
     onSelectNode: (eln, node) => {
-        // 当某个节点选中时触发
+        console.log('onSelectNode', eln, node);
     },
     onClearActiveElement: () => {
-        // 清除当前选中的节点事件
+        console.log('清空所有选中状态');
     },
-
     onNodeContextMenuRender: (nodeInfo) => {
-        // 节点的右键菜单显示项
-        return [{
-            label: '配置', action: 'h_setup'
-        }, {
-            label: '详情', action: 'h_detail'
-        }];
+        return [{ label: '配置', action: 'h_setup' },{ label: '详情', action: 'h_detail' }];
     },
     contextmenuClick: (node, action) => {
-        // node 节点的数据信息
-        // node 节点的数据信息        
+        alert(`触发了节点[${node.config.name}]的[${action.label}]菜单`)        
     },
-    onChange: (data) => {
-        // 当拓扑图数据发生变更的时候触发该方法        
+    onChange: data => {
+        console.log('data change', data);
     },
 };
 
+// 初始化
 let topoflow = new TopoFlow(config);
+
+// 新建node1
+let node1 = topoFlow.addNode({
+    type: nodeType,
+    x: 100,
+    y: 100,
+    config: { xxx }
+});
+
+// 新建node2
+let node2 = topoFlow.addNode({
+    type: nodeType,
+    x: 200,
+    y: 200,
+    config: { xxx }
+});
+
+// 将node1和node2相连
+topoFlow.addLink(node1, node2);
 ```
 
 
-- 方法说明
 
-```js
-// 更新图形
-topoflow.setData(newData);
+#### 属性
 
-// 选中某个节点
-topoflow.selectNode(nodeID);
+| 属性名                         | 属性说明                       |
+| --------------------------- | -------------------------- |
+| eln                         | 用于生成图形的div属性一般为div|class  |
+| data                        | 图形的数据                      |
+| height                      | 画布的高度                      |
+| nodeTemplate                | 节点的模板                      |
+| linkTemplate.defs(def)      | 预定义图形，可作用于线上，例如在线上加入箭头等形状。 |
+| linkTemplate.path(path)     | 定义连接连个节点之间的线的样式。           |
+| linkTemplate.dragLink(line) | 定义鼠标拖拽生成的线的样式。             |
 
-// 新增线条
-topoflow.addLink(linkInfo);
 
-// 新增节点
-topoflow.addNode(nodeInfo);
 
-// 获取当前的节点
-topoflow.getNodes();
-// 获取当前的线
-topoflow.getLinks();
-```
+#### 事件
+
+| 名称                                | 说明                               |
+| --------------------------------- | -------------------------------- |
+| onSelectNode(eln,node)            | 当节点被选中的时候触发。                     |
+| onClearActiveElement()            | 清空元素的选中状态时触发。                    |
+| onNodeContextMenuRender(nodeInfo) | 当节点上触发右键的时候触发该事件，通过return可以生成菜单。 |
+| contextmenuClick(node,action)     | 当节点上右键菜单项点击时触发。                  |
+
+#### 方法
+
+| 名称                           | 说明            |
+| ---------------------------- | ------------- |
+| topoflow.setData(newData);   | 设置新的数据并立即刷新图形 |
+| topoflow.selectNode(nodeID); | 选中节点          |
+| topoflow.addLink(linkInfo);  | 新增线条          |
+| topoflow.addNode(nodeInfo);  | 新增节点          |
+| topoflow.getNodes();         | 获取节点数据信息      |
+| topoflow.getLinks();         | 获取线条数据信息      |
 

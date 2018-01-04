@@ -58,7 +58,7 @@ class Index {
 
     // 新增节点
     addNode(nodeInfo) {
-        this.flow.addNode(nodeInfo);
+        return this.flow.addNode(nodeInfo);
     }
 
     // 新增线条

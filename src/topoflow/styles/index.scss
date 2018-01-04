@@ -46,11 +46,11 @@ $default:#e6e6e6;
     }
     .right-menu {
         ul {
+            padding-left: 0;
             background-color: white;
             border: 1px solid #ccc;
         }
-        li {
-            padding-left: 0;
+        li {            
             padding: 5px;
             font-size: 13px;
             list-style: none;

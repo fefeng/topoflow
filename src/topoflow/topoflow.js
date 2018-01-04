@@ -449,13 +449,15 @@ export default class Flow {
         let gid = 'link_' + common.genUUID();
         let points = mathLib.calculateLinkPoint(sourceNode, targetNode, this.config);
 
-        let path = this.pathGroup.append('svg:path');
+        let path = this.pathGroup.append('svg:path').attr('id', gid).attr('class', 'link');
 
         if (this.config.hasOwnProperty('linkTemplate') && this.config.linkTemplate.hasOwnProperty('path')) {
             this.config.linkTemplate.path(path);
+        } else {
+            path.style('marker-end', 'url(#end-arrow)')
         }
-        path.attr('id', gid).attr('class', 'link')
-            .attr('d', `M${points[0]}, ${points[1]}L${points[2]}, ${points[3]}`)
+
+        path.attr('d', `M${points[0]}, ${points[1]}L${points[2]}, ${points[3]}`)
             .on('click', () => {
                 then.clearAllActiveElement();
                 path.classed('active', true);
