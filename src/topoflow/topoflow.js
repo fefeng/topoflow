@@ -45,8 +45,7 @@ export default class Flow {
         this.initDefs();
         this.initSvgEvent();
 
-        let nodeTypeList = Object.keys(this.config.nodeTemplate);
-        nodeTypeList.map((type) => {
+        Object.keys(this.config.nodeTemplate).map((type) => {
             let nodeTemplate = this.config.nodeTemplate[type];
             if (!!nodeTemplate.deleteAble) {
                 this.deleteAbleType.push(type);
@@ -77,7 +76,7 @@ export default class Flow {
     initDefs() {
         let defs = this.svg.append('svg:defs').attr('id', 'arrow-defs');
 
-        // 自定义的
+        // 自定义
         if (this.config.hasOwnProperty('linkTemplate') && this.config.linkTemplate.hasOwnProperty('defs')) {
             this.config.linkTemplate.defs(defs);
         } else {
@@ -91,15 +90,12 @@ export default class Flow {
                 .append('svg:path')
                 .attr('d', 'M0,-5L10,0L0,5');
         }
-        
+
         this.dragLine = this.pathGroup.append('svg:path');
         if (this.config.hasOwnProperty('linkTemplate') && this.config.linkTemplate.hasOwnProperty('dragLink')) {
             this.config.linkTemplate.dragLink(this.dragLine)
         } else {
-            this.dragLine.style('fill', 'white')
-                .style('marker-end', 'url(#end-arrow)')
-                .attr('class', 'dragline hide')
-                .attr('d', 'M0,0L0,0');
+            this.dragLine.style('fill', 'white').style('marker-end', 'url(#end-arrow)').attr('class', 'dragline hide').attr('d', 'M0,0L0,0');
         }
     }
 
@@ -455,10 +451,10 @@ export default class Flow {
 
         let path = this.pathGroup.append('svg:path');
 
-        path
-            .attr('id', gid)
-            .style('marker-end', 'url(#end-arrow)')
-            .attr('class', 'link')
+        if (this.config.hasOwnProperty('linkTemplate') && this.config.linkTemplate.hasOwnProperty('path')) {
+            this.config.linkTemplate.path(path);
+        }
+        path.attr('id', gid).attr('class', 'link')
             .attr('d', `M${points[0]}, ${points[1]}L${points[2]}, ${points[3]}`)
             .on('click', () => {
                 then.clearAllActiveElement();
