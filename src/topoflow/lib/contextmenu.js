@@ -44,7 +44,8 @@ export default class Contextmenu {
     genContextMenuItem() {
         if (!!this.config.render) {
             let items = this.config.render(this.currentNodeInfo);
-            if (items === null) {
+            
+            if (!!! items ||items === null) {
                 return;
             }
             let menuHTML = items.map(v => {

@@ -23,7 +23,10 @@ export default class Flow {
         this.rwaElnContainer = document.querySelector(this.config.eln);
 
         this.rwaElnContainer.classList.add('topoflow-container');
-        this.initContextMenu()
+
+        if (this.config.hasOwnProperty('onNodeContextMenuRender')) {
+            this.initContextMenu();
+        }
 
         // 初始化画布
         this.svg = d3
@@ -207,11 +210,15 @@ export default class Flow {
                         let targetNode = then.Nodes[nodeID];
                         then.addLink(then.sourceNode, targetNode);
                     }
+                    if (then.config.hasOwnProperty('onDragLink')) {
+                        let point = [d3.event.x, d3.event.y];
+                        then.config.onDragLink(then.sourceNode, point, flag === 2);
+                    }
 
                     then.sourceNode = {};
                     then.onDataChange();
                 });
-
+                
             this.nodaDrag();
             this.hotKey();
         }
@@ -308,6 +315,7 @@ export default class Flow {
 
     // 选中节点
     selectNode(nodeID) {
+        this.clearAllActiveElement()
         let nodeInfo = this.Nodes[nodeID];
         nodeInfo.selected = true;
 
@@ -344,12 +352,14 @@ export default class Flow {
             .attr('id', nodeInfo.id)
             .on('contextmenu', function () {
                 d3.event.preventDefault();
-                then.contextmenu.show(nodeInfo, then.currentMouseXY);
+                if (then.config.hasOwnProperty('onNodeContextMenuRender')) {
+                    then.contextmenu.show(nodeInfo, then.currentMouseXY);
+                }
             })
             .on('click', function () {
-                then.selectNode(nodeInfo.id);
-                then.onNodeClick(node, nodeInfo);
                 then.config.onSelectNode(this, nodeInfo);
+                then.selectNode(nodeInfo.id);
+                then.onNodeClick(node, nodeInfo);                
             })
             .attr('transform', `translate(${nodeInfo.x}, ${nodeInfo.y})`);
 
