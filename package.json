@@ -1,15 +1,16 @@
 {
   "name": "topoflow",
-  "version": "0.9.4",
+  "version": "0.9.6",
   "description": " ",
-  "main": "/src/topoflow/index.js",
+  "main": "/lib/index.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
     "start": "webpack-dev-server --config=webpack/webpack.dev.js --hot --colors --inline --progress --host 0.0.0.0 --port 3030",
     "build": "webpack --config webpack/webpack.prod.js --progress --profile --bail",
-    "build-sass": "node-sass --output-style compressed ./src/topoflow/styles/index.scss > ./src/topoflow/styles/index.css"
+    "build-lib": "babel ./src/ -d lib -s",
+    "build-sass": "node-sass --output-style compressed ./src/styles/index.scss > ./src/styles/index.css"
   },
   "author": "fefeng",
   "license": "ISC",
@@ -32,6 +33,9 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
     "css-loader": "^0.28.7",
     "extract-text-webpack-plugin": "^3.0.2",
     "html-webpack-plugin": "^2.30.1",
