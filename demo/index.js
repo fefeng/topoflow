@@ -1,4 +1,5 @@
 import TopoFlow from '../lib';
+// import TopoFlow from '../src';
 import './index.scss'
 
 class Index {
@@ -127,6 +128,7 @@ class Index {
             },
         };
         this.topoFlow = new TopoFlow(config);
+        
     }
     initDemoEvent() {
         // 创建节点

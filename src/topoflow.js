@@ -15,8 +15,7 @@ export default class Flow {
         this.Links = {}; // 当前画布的线条信息
         this.sourceNode = {}; //  源节点信息               
         this.selectedElement = null; //当前选中节点的ID
-        this.optionGroup = null;  // 操作按钮元素
-        this.deleteAbleType = [];    // 允许删除的元素
+        this.optionGroup = null;  // 操作按钮元素        
         this.currentMouseXY = {};
 
 
@@ -46,14 +45,7 @@ export default class Flow {
     // 组件初始化方法调用
     init() {
         this.initDefs();
-        this.initSvgEvent();
-
-        Object.keys(this.config.nodeTemplate).map((type) => {
-            let nodeTemplate = this.config.nodeTemplate[type];
-            if (!!nodeTemplate.deleteAble) {
-                this.deleteAbleType.push(type);
-            }
-        });
+        this.initSvgEvent();       
     }
 
 
@@ -288,12 +280,7 @@ export default class Flow {
             if (!this.config.onDeleteNode(node)) {
                 return;
             }
-        }
-
-        if (this.deleteAbleType.indexOf(node.type) === -1) {
-            console.log('Not allowed to delete type ' + node.type);
-            return false;
-        }
+        }       
 
         delete this.Nodes[nodeID];
         d3.select('#' + nodeID).remove();
