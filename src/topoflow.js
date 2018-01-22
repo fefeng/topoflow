@@ -218,7 +218,7 @@ export default class Flow {
                     then.sourceNode = {};
                     then.onDataChange();
                 });
-                
+
             this.nodaDrag();
             this.hotKey();
         }
@@ -359,7 +359,7 @@ export default class Flow {
             .on('click', function () {
                 then.config.onSelectNode(this, nodeInfo);
                 then.selectNode(nodeInfo.id);
-                then.onNodeClick(node, nodeInfo);                
+                then.onNodeClick(node, nodeInfo);
             })
             .attr('transform', `translate(${nodeInfo.x}, ${nodeInfo.y})`);
 
@@ -380,6 +380,11 @@ export default class Flow {
     onNodeClick(node, nodeInfo) {
         let then = this;
         this.sourceNode = nodeInfo;
+        let template = this.config.nodeTemplate[nodeInfo.type];
+        if (!template) {
+            console.warn(`${nodeInfo.type} template not found `);
+            return;
+        }
 
         if (!!this.optionGroup) {
             this.optionGroup.remove();
@@ -395,7 +400,7 @@ export default class Flow {
                 .attr('height', nodeInfo.height)
                 .attr('transform', `translate(${nodeInfo.x}, ${nodeInfo.y}) `);
 
-            this.config.nodeTemplate[nodeInfo.type].operatingPoint.forEach((item) => {
+            template.operatingPoint.forEach((item) => {
                 then.optionGroup
                     .append('svg:circle')
                     .attr('class', 'operating-point')
@@ -411,35 +416,35 @@ export default class Flow {
                     }).call(then.DragLinkEvent);
             });
 
+            if (template.deleteAble) {
+                // 删除按钮
+                let del_btn = this.optionGroup
+                    .append('g')
+                    .attr('class', 'delete-not-btn')
+                    .attr('transform', `translate(${nodeInfo.width + nodeInfo.x}, ${nodeInfo.y}) `);
 
-            // 删除按钮
-            let del_btn = this.optionGroup
-                .append('g')
-                .attr('class', 'delete-not-btn')
-                .attr('transform', `translate(${nodeInfo.width + nodeInfo.x}, ${nodeInfo.y}) `);
+                del_btn
+                    .append('svg:circle')
+                    .attr('stroke', 'red')
+                    .attr('fill', 'red')
+                    .attr('r', 6);
 
-            del_btn
-                .append('svg:circle')
-                .attr('stroke', 'red')
-                .attr('fill', 'red')
-                .attr('r', 6);
+                del_btn
+                    .append('svg:path')
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 2)
+                    .attr('d', 'M-3,-3L3,3');
 
-            del_btn
-                .append('svg:path')
-                .attr('stroke', 'white')
-                .attr('stroke-width', 2)
-                .attr('d', 'M-3,-3L3,3');
+                del_btn
+                    .append('svg:path')
+                    .attr('stroke', 'white')
+                    .attr('stroke-width', 2)
+                    .attr('d', 'M3,-3L-3,3');
 
-            del_btn
-                .append('svg:path')
-                .attr('stroke', 'white')
-                .attr('stroke-width', 2)
-                .attr('d', 'M3,-3L-3,3');
-
-            del_btn.on('click', function () {
-                console.log('delete node', nodeInfo);
-                then.deleteNode(nodeInfo.id);
-            });
+                del_btn.on('click', function () {                    
+                    then.deleteNode(nodeInfo.id);
+                });
+            }
         }
     }
 

@@ -26,7 +26,7 @@ class Index {
         let nodes = [];
         let links = [];
         this.flow.reset();
-        
+
         try {
             nodes = this.config.data.nodes;
             links = this.config.data.links;
@@ -59,6 +59,11 @@ class Index {
     // 新增节点
     addNode(nodeInfo) {
         return this.flow.addNode(nodeInfo);
+    }
+
+    // 删除节点
+    deleteNode(nodeID) {
+        return this.flow.deleteNode(nodeID);
     }
 
     // 新增线条
