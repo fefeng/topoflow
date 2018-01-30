@@ -48,42 +48,19 @@ export default {
     // 计算两个节点之间线条的坐标信息
     calculateLinkPoint(sourceNode, targetNode, config) {
         let offset = 10;
-        let endNodeInfo = {};
-        let startNodeInfo = {};
-        let sourceShapeType = config.nodeTemplate[sourceNode.type].shape;
-        let targetShapeType = config.nodeTemplate[targetNode.type].shape;
+        let startNodeInfo = {
+            x: sourceNode.x - offset / 2,
+            y: sourceNode.y - offset / 2,
+            width: sourceNode.width + offset,
+            height: sourceNode.height + offset
+        };
 
-        if (sourceShapeType === 'circle') {
-            startNodeInfo = {
-                x: (sourceNode.x - sourceNode.width) - offset / 2,
-                y: (sourceNode.y - sourceNode.height) - offset / 2,
-                width: sourceNode.width * 2 + offset,
-                height: sourceNode.height * 2 + offset
-            };
-        } else {
-            startNodeInfo = {
-                x: sourceNode.x - offset / 2,
-                y: sourceNode.y - offset / 2,
-                width: sourceNode.width + offset,
-                height: sourceNode.height + offset
-            };
-        }
-
-        if (targetShapeType === 'circle') {
-            endNodeInfo = {
-                x: (targetNode.x - targetNode.width) - offset / 2,
-                y: (targetNode.y - targetNode.height) - offset / 2,
-                width: targetNode.width * 2 + offset,
-                height: targetNode.height * 2 + offset
-            };
-        } else {
-            endNodeInfo = {
-                x: targetNode.x - offset / 2,
-                y: targetNode.y - offset / 2,
-                width: targetNode.width + offset,
-                height: targetNode.height + offset
-            };
-        }
+        let endNodeInfo = {
+            x: targetNode.x - offset / 2,
+            y: targetNode.y - offset / 2,
+            width: targetNode.width + offset,
+            height: targetNode.height + offset
+        };
 
         let startPoint = this.getPoint(startNodeInfo, {
             x: endNodeInfo.x + endNodeInfo.width / 2,
