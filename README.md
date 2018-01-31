@@ -240,6 +240,8 @@ topoFlow.addLink(node1, node2);
 | onClearActiveElement()            | 清空元素的选中状态时触发。                    |
 | onNodeContextMenuRender(nodeInfo) | 当节点上触发右键的时候触发该事件，通过return可以生成菜单。 |
 | contextmenuClick(node,action)     | 当节点上右键菜单项点击时触发。                  |
+| onConnect(source,target)          | 当节点连线后触发                  |
+
 
 #### 方法
 

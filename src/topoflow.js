@@ -17,8 +17,7 @@ export default class Flow {
         this.selectedElement = null; //当前选中节点的ID
         this.optionGroup = null;  // 操作按钮元素        
         this.currentMouseXY = {};
-
-
+        this.isSetData = false; // 是否是回填数据模式
         this.rwaElnContainer = document.querySelector(this.config.eln);
 
         this.rwaElnContainer.classList.add('topoflow-container');
@@ -64,7 +63,9 @@ export default class Flow {
 
     // 当图形发生变更的时候进行图形的变化
     onDataChange() {
-        this.config.onDataChange();
+        if (!this.isSetData && this.config.hasOwnProperty('onDataChange')) {
+            this.config.onDataChange();
+        }
     }
 
     // 初始化定义元素，如箭头
@@ -454,9 +455,9 @@ export default class Flow {
         let points = mathLib.calculateLinkPoint(sourceNode, targetNode, this.config);
 
         if (points.length !== 4) {
-            return ;
+            return;
         }
-        
+
         let path = this.pathGroup.append('svg:path').attr('id', gid).attr('class', 'link');
 
         if (this.config.hasOwnProperty('linkTemplate') && this.config.linkTemplate.hasOwnProperty('path')) {
@@ -481,6 +482,9 @@ export default class Flow {
             to: targetNode.id
         };
 
+        if (!this.isSetData && this.config.hasOwnProperty('onConnect')) {
+            this.config.onConnect(sourceNode, targetNode);
+        }
         this.onDataChange();
     }
 

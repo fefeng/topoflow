@@ -26,6 +26,7 @@ class Index {
         let nodes = [];
         let links = [];
         this.flow.reset();
+        this.flow.isSetData = true;
 
         try {
             nodes = this.config.data.nodes;
@@ -49,6 +50,7 @@ class Index {
                 this.flow.addLink(this.flow.Nodes[link.from], this.flow.Nodes[link.to]);
             });
         }
+        this.flow.isSetData = false;
     }
 
     // 选中一个节点

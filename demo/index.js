@@ -126,9 +126,12 @@ class Index {
             onChange: data => {
                 console.log('data change', data);
             },
+            onConnect: (source,target) => {
+                console.log('on connect', source,target);
+            }
         };
         this.topoFlow = new TopoFlow(config);
-        
+
     }
     initDemoEvent() {
         // 创建节点
@@ -140,7 +143,7 @@ class Index {
                 x: 100,
                 y: 100,
                 config: { name }
-            });            
+            });
         });
 
         // 创建节点
