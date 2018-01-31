@@ -49,7 +49,7 @@ export default {
     calculateLinkPoint(sourceNode, targetNode, config) {
         let offset = 10;
         if (!sourceNode || !targetNode) {
-            return;
+            return [];
         }
         let startNodeInfo = {
             x: sourceNode.x - offset / 2,

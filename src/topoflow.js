@@ -45,7 +45,7 @@ export default class Flow {
     // 组件初始化方法调用
     init() {
         this.initDefs();
-        this.initSvgEvent();       
+        this.initSvgEvent();
     }
 
 
@@ -280,7 +280,7 @@ export default class Flow {
             if (!this.config.onDeleteNode(node)) {
                 return;
             }
-        }       
+        }
 
         delete this.Nodes[nodeID];
         d3.select('#' + nodeID).remove();
@@ -428,7 +428,7 @@ export default class Flow {
                     .attr('stroke-width', 2)
                     .attr('d', 'M3,-3L-3,3');
 
-                del_btn.on('click', function () {                    
+                del_btn.on('click', function () {
                     then.deleteNode(nodeInfo.id);
                 });
             }
@@ -441,8 +441,10 @@ export default class Flow {
         let targetNode = this.Nodes[link.to];
 
         let points = mathLib.calculateLinkPoint(sourceNode, targetNode, this.config);
+        if (points.length === 4) {
+            d3.select(`#${linkID}`).attr('d', `M${points[0]},${points[1]}L${points[2]}, ${points[3]}`);
+        }
 
-        d3.select(`#${linkID}`).attr('d', `M${points[0]},${points[1]}L${points[2]}, ${points[3]}`);
     }
 
     // 增加线条
@@ -451,6 +453,10 @@ export default class Flow {
         let gid = 'link_' + common.genUUID();
         let points = mathLib.calculateLinkPoint(sourceNode, targetNode, this.config);
 
+        if (points.length !== 4) {
+            return ;
+        }
+        
         let path = this.pathGroup.append('svg:path').attr('id', gid).attr('class', 'link');
 
         if (this.config.hasOwnProperty('linkTemplate') && this.config.linkTemplate.hasOwnProperty('path')) {
