@@ -48,6 +48,9 @@ export default {
     // 计算两个节点之间线条的坐标信息
     calculateLinkPoint(sourceNode, targetNode, config) {
         let offset = 10;
+        if (!sourceNode || !targetNode) {
+            return;
+        }
         let startNodeInfo = {
             x: sourceNode.x - offset / 2,
             y: sourceNode.y - offset / 2,
