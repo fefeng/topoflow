@@ -72,6 +72,14 @@ class Index {
     addLink(sourceNode, targetNode) {
         this.flow.addLink(sourceNode, targetNode);
     }
+    // 删除节点
+    forceDeleteLink(link) {
+        return this.flow.deleteLink(link, 'force');
+    }
+
+    deleteLink(link) {
+        return this.flow.deleteLink(link);
+    }
 
     getNodes() {
         let nodes = this.flow.Nodes;
@@ -83,12 +91,13 @@ class Index {
         });
     }
 
-    onDataChange() {
+    onDataChange(type) {
         let nodes = this.getNodes();
         let links = this.getLinks();
-
+        
         if (!!this.config.onChange) {
             this.config.onChange({
+                type,
                 nodes,
                 links
             });

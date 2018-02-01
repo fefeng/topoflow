@@ -62,9 +62,9 @@ export default class Flow {
     }
 
     // 当图形发生变更的时候进行图形的变化
-    onDataChange() {
+    onDataChange(type) {
         if (!this.isSetData && this.config.hasOwnProperty('onDataChange')) {
-            this.config.onDataChange();
+            this.config.onDataChange(type);
         }
     }
 
@@ -115,7 +115,7 @@ export default class Flow {
         this.Nodes = [];
         this.Links = [];
         this.initDefs();
-        this.onDataChange();
+        this.onDataChange('reset');
     }
 
     // 清理所有选中的元素信息
@@ -141,7 +141,7 @@ export default class Flow {
         nodeIDs.map(item => {
             this.Nodes[item].selected = false;
         });
-        this.onDataChange();
+        this.onDataChange('clearActive');
     }
 
     zoom() {
@@ -209,7 +209,7 @@ export default class Flow {
                     }
 
                     then.sourceNode = {};
-                    then.onDataChange();
+                    then.onDataChange('connect');
                 });
 
             this.nodaDrag();
@@ -251,7 +251,7 @@ export default class Flow {
                 });
             })
             .on('end', function () {
-                then.onDataChange();
+                then.onDataChange('moveNode');
             });
     }
 
@@ -298,7 +298,7 @@ export default class Flow {
             this.optionGroup.remove();
         }
 
-        this.onDataChange();
+        this.onDataChange('deleteNode');
     }
 
     // 选中节点
@@ -361,7 +361,7 @@ export default class Flow {
 
         // 保存节点信息        
         this.Nodes[nodeInfo.id] = nodeInfo;
-        this.onDataChange();
+        this.onDataChange('addNode');
         return nodeInfo;
     }
 
@@ -485,23 +485,24 @@ export default class Flow {
         if (!this.isSetData && this.config.hasOwnProperty('onConnect')) {
             this.config.onConnect(this.Links[gid], sourceNode, targetNode);
         }
-        this.onDataChange();
+
+        this.onDataChange('addLink');
     }
 
-    deleteLink(link) {
-        if (!this.isSetData && this.config.hasOwnProperty('onDeleteLink')) {
+    deleteLink(link, type) {
+        if (type !== 'force' && !this.isSetData && this.config.hasOwnProperty('onDeleteLink')) {
             let promise = this.config.onDeleteLink(link);
             if (promise instanceof Promise) {
                 promise.then(r => {
                     delete this.Links[link.id];
                     d3.select(`#${link.id}`).remove();
-                    this.onDataChange();
+                    this.onDataChange('deleteLink');
                 });
             }
         } else {
             delete this.Links[link.id];
             d3.select(`#${link.id}`).remove();
-            this.onDataChange();
+            this.onDataChange('deleteLink');
         }
     }
 }
