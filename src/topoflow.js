@@ -483,14 +483,25 @@ export default class Flow {
         };
 
         if (!this.isSetData && this.config.hasOwnProperty('onConnect')) {
-            this.config.onConnect(sourceNode, targetNode);
+            this.config.onConnect(this.Links[gid], sourceNode, targetNode);
         }
         this.onDataChange();
     }
 
     deleteLink(link) {
-        delete this.Links[link.id];
-        d3.select(`#${link.id}`).remove();
-        this.onDataChange();
+        if (!this.isSetData && this.config.hasOwnProperty('onDeleteLink')) {
+            let promise = this.config.onDeleteLink(link);
+            if (promise instanceof Promise) {
+                promise.then(r => {
+                    delete this.Links[link.id];
+                    d3.select(`#${link.id}`).remove();
+                    this.onDataChange();
+                });
+            }
+        } else {
+            delete this.Links[link.id];
+            d3.select(`#${link.id}`).remove();
+            this.onDataChange();
+        }
     }
 }

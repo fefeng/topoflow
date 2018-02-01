@@ -126,8 +126,15 @@ class Index {
             onChange: data => {
                 console.log('data change', data);
             },
-            onConnect: (source,target) => {
-                console.log('on connect', source,target);
+            onConnect: (source, target) => {
+                console.log('on connect', source, target);
+            },
+            onDeleteLink: link => {
+                return new Promise((resolve, reject) => {                    
+                    setTimeout(() => {                        
+                        resolve(link);
+                    }, 400);
+                });
             }
         };
         this.topoFlow = new TopoFlow(config);
