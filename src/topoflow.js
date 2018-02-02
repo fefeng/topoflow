@@ -290,7 +290,7 @@ export default class Flow {
         linksID.map((linkID) => {
             let link = this.Links[linkID];
             if (link.from === nodeID || link.to === nodeID) {
-                this.deleteLink(link);
+                this.deleteLink(link, 'force');
             }
         });
 
