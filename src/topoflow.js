@@ -341,7 +341,7 @@ export default class Flow {
             .on('contextmenu', function () {
                 d3.event.preventDefault();
                 if (then.config.hasOwnProperty('onNodeContextMenuRender')) {
-                    then.contextmenu.show(nodeInfo, then.currentMouseXY);
+                    then.contextmenu.show({ contextType: 'node', ...nodeInfo }, then.currentMouseXY);
                 }
             })
             .on('click', function () {
@@ -466,21 +466,28 @@ export default class Flow {
             path.style('marker-end', 'url(#end-arrow)')
         }
 
-        path.attr('d', `M${points[0]}, ${points[1]}L${points[2]}, ${points[3]}`)
-            .on('click', () => {
-                then.clearAllActiveElement();
-                path.classed('active', true);
-                then.selectedElement = {
-                    type: 'link',
-                    id: gid
-                };
-            });
-
         this.Links[gid] = {
             id: gid,
             from: sourceNode.id,
             to: targetNode.id
         };
+
+        path.attr('d', `M${points[0]}, ${points[1]}L${points[2]}, ${points[3]}`)
+            .on('contextmenu', function () {
+                d3.event.preventDefault();
+                if (then.config.hasOwnProperty('onNodeContextMenuRender')) {
+                    then.contextmenu.show({ contextType: 'link', ...then.Links[gid] }, then.currentMouseXY);
+                }
+            })
+            .on('click', function () {
+                then.clearAllActiveElement();
+                path.classed('active', true);
+
+                then.selectedElement = {
+                    type: 'link',
+                    id: gid
+                };
+            });
 
         if (!this.isSetData && this.config.hasOwnProperty('onConnect')) {
             this.config.onConnect(this.Links[gid], sourceNode, targetNode);

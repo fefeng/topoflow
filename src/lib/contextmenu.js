@@ -35,7 +35,7 @@ export default class Contextmenu {
     }
 
     // 在指定的位置显示菜单
-    show(nodeInfo, position) {        
+    show(nodeInfo, position) {                
         this.currentNodeInfo = nodeInfo;
         this.genContextMenuItem();
         this.rightMenuEln.style = `display: inline; transform: translate(${position.x}px,${position.y}px);`;
@@ -44,8 +44,8 @@ export default class Contextmenu {
     genContextMenuItem() {
         if (!!this.config.render) {
             let items = this.config.render(this.currentNodeInfo);
-            
-            if (!!! items ||items === null) {
+
+            if (!!!items || items === null) {
                 return;
             }
             let menuHTML = items.map(v => {

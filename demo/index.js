@@ -115,12 +115,24 @@ class Index {
                 console.log('清空所有选中状态');
             },
             onNodeContextMenuRender: (nodeInfo) => {
-
-                return [{ label: '配置', action: 'h_setup' },
-                { label: '详情', action: 'h_detail' }];
+                if (nodeInfo.contextType === 'node') {
+                    return [
+                        { label: '删除节点', action: 'deleteNode' },
+                        { label: '详情', action: 'h_detail' }
+                    ];
+                } else if (nodeInfo.contextType === 'link') {
+                    return [
+                        { label: '删除线', action: 'deleteLink' },
+                    ]
+                }
             },
             contextmenuClick: (node, action) => {
-                alert(`触发了节点[${node.config.name}]的[${action.label}]菜单`)
+                switch (action.action) {
+                    case 'deleteNode':
+                        this.topoFlow.deleteNode(node.id);
+                    case 'deleteLink':                        
+                        this.topoFlow.deleteLink(node);
+                }
                 console.log('menu click', node, action);
             },
             onChange: data => {
@@ -130,10 +142,8 @@ class Index {
                 console.log('on connect', source, target);
             },
             onDeleteLink: link => {
-                return new Promise((resolve, reject) => {                    
-                    setTimeout(() => {                        
-                        resolve(link);
-                    }, 400);
+                return new Promise((resolve, reject) => {
+                    resolve(link);
                 });
             }
         };
