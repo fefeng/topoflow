@@ -113,7 +113,7 @@ class Index {
             },
             onClearActiveElement: () => {
                 console.log('清空所有选中状态');
-            },
+            },            
             onNodeContextMenuRender: (nodeInfo) => {
                 if (nodeInfo.contextType === 'node') {
                     return [
